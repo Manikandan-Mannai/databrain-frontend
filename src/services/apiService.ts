@@ -31,19 +31,28 @@ const get = <T = any>(
   url: string,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => api.get(url, config);
+
 const post = <T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => api.post(url, data, config);
+
 const put = <T = any>(
   url: string,
   data?: any,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => api.put(url, data, config);
+
+const patch = <T = any>(
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig
+): Promise<AxiosResponse<T>> => api.patch(url, data, config);
+
 const del = <T = any>(
   url: string,
   config?: AxiosRequestConfig
 ): Promise<AxiosResponse<T>> => api.delete(url, config);
 
-export default { get, post, put, delete: del };
+export default { get, post, put, patch, delete: del };

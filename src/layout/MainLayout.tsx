@@ -1,6 +1,10 @@
-// src/layout/MainLayout.tsx
+import {
+  BarChart,
+  Dashboard as DashboardIcon,
+  QueryStats,
+  UploadFile,
+} from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
 import {
   AppBar,
   Box,
@@ -9,52 +13,87 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import type { RootState } from "../redux/store/store";
 
-const drawerWidth = 220;
+const drawerWidth = 240;
 
-const MainLayout = () => {
+const navItems = [
+  {
+    name: "Dashboard",
+    path: "/dashboard",
+    icon: <DashboardIcon />,
+    roles: ["admin", "editor", "viewer"],
+  },
+  {
+    name: "Data Sources",
+    path: "/data",
+    icon: <UploadFile />,
+    roles: ["admin", "editor", "viewer"],
+  },
+  {
+    name: "Query Builder",
+    path: "/queries/new",
+    icon: <QueryStats />,
+    roles: ["admin", "editor"],
+  },
+  {
+    name: "New Chart",
+    path: "/charts/new",
+    icon: <BarChart />,
+    roles: ["admin", "editor"],
+  },
+];
+
+export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
-  const menuItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Data Sources", path: "/data-sources" },
-    { name: "Query Builder", path: "/query-builder" },
-    { name: "Visualizations", path: "/visualizations" },
-  ];
+  const filteredItems = navItems.filter(
+    (item) => user && item.roles.includes(user.role)
+  );
 
   const drawer = (
-    <Box sx={{ textAlign: "center" }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
+    <Box>
+      <Toolbar />
+      <Typography
+        variant="h6"
+        sx={{ my: 2, textAlign: "center", fontWeight: "bold" }}
+      >
         DataBrain
       </Typography>
       <List>
-        {menuItems.map((item) => (
+        {filteredItems.map((item) => (
           <ListItem key={item.name} disablePadding>
             <ListItemButton
+              selected={location.pathname === item.path}
               onClick={() => {
                 navigate(item.path);
                 setMobileOpen(false);
               }}
+              sx={{
+                "&.Mui-selected": {
+                  backgroundColor: "action.selected",
+                  "&:hover": { backgroundColor: "action.selected" },
+                },
+              }}
             >
+              <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.name} />
             </ListItemButton>
           </ListItem>
         ))}
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => navigate("/login")}>
-            <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-            <ListItemText primary="Logout" />
-          </ListItemButton>
-        </ListItem>
       </List>
     </Box>
   );
@@ -63,7 +102,12 @@ const MainLayout = () => {
     <Box sx={{ display: "flex" }}>
       <AppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: "background.paper",
+          color: "text.primary",
+          boxShadow: 1,
+        }}
       >
         <Toolbar>
           <IconButton
@@ -74,8 +118,8 @@ const MainLayout = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            DataBrain Dashboard
+          <Typography variant="h6" noWrap component="div" fontWeight="bold">
+            DataBrain Analytics Platform
           </Typography>
         </Toolbar>
       </AppBar>
@@ -91,7 +135,10 @@ const MainLayout = () => {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": { width: drawerWidth },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
           }}
         >
           {drawer}
@@ -101,7 +148,10 @@ const MainLayout = () => {
           variant="permanent"
           sx={{
             display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": { width: drawerWidth },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
           }}
           open
         >
@@ -122,6 +172,4 @@ const MainLayout = () => {
       </Box>
     </Box>
   );
-};
-
-export default MainLayout;
+}
