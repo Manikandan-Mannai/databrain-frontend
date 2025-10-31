@@ -1,14 +1,14 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import authSlice from "../slices/authSlice";
-// import dashboardSlice from "../slices/dashboardSlice";
 import chartSlice from "../slices/chartSlice";
 import dataReducer from "../slices/dataSlice";
+import queryReducer from "../slices/querySlice"; 
 
 const rootReducer = combineReducers({
   auth: authSlice,
-  // dashboard: dashboardSlice,
   chart: chartSlice,
   data: dataReducer,
+  query: queryReducer, // ← ADD THIS
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

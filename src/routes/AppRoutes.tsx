@@ -5,7 +5,7 @@ import LoginForm from "../components/auth/LoginForm";
 import MainLayout from "../layout/MainLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 import DataSourcePage from "../pages/DataSource/DataSourcePage";
-// import QueryBuilderPage from "../pages/query/QueryBuilderPage";
+import QueryBuilderPage from "../pages/QueryBuilder/QueryBuilder";
 // import ChartBuilderPage from "../pages/chart/ChartBuilderPage";
 import Unauthorized from "../pages/Unauthorized";
 import type { RootState } from "../redux/store/store";
@@ -70,7 +70,7 @@ const AppRoutes = () => {
             </PrivateRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/queries/new"
           element={
             <PrivateRoute allowedRoles={["admin", "editor"]}>
@@ -78,7 +78,7 @@ const AppRoutes = () => {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/charts/new"
           element={
             <PrivateRoute allowedRoles={["admin", "editor"]}>
