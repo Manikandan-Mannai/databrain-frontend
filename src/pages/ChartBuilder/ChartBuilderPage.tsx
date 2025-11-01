@@ -21,13 +21,6 @@ import { fetchQueryResult } from "../../redux/slices/querySlice";
 import { saveChart } from "../../redux/slices/chartSlice";
 import type { RootState, AppDispatch } from "../../redux/store/store";
 
-interface ChartConfig {
-  xAxis: string;
-  yAxis: string;
-  type: "bar" | "line" | "pie";
-  title: string;
-}
-
 const ChartBuilderPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,15 +32,22 @@ const ChartBuilderPage = () => {
     (state: RootState) => state.query
   );
   const { status: chartStatus } = useSelector(
-    (state: RootState) => state.chart
+    (state: RootState) => state?.chart
   );
 
-  const [chartConfig, setChartConfig] = useState<ChartConfig>({
+  const [chartConfig, setChartConfig] = useState<{
+    xAxis: string;
+    yAxis: string;
+    type: "bar" | "line" | "pie";
+    title: string;
+  }>({
     xAxis: "",
     yAxis: "",
     type: "bar",
     title: "",
   });
+
+  const [preview, setPreview] = useState(false);
 
   useEffect(() => {
     if (queryId && !currentResult) {
@@ -58,16 +58,19 @@ const ChartBuilderPage = () => {
     }
   }, [queryId, currentResult, dispatch, navigate]);
 
-  const handleChange = (field: keyof ChartConfig, value: string) => {
+  const handleChange = (field: string, value: string) => {
     setChartConfig((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+  const handleGeneratePreview = () => {
     if (!chartConfig.title || !chartConfig.xAxis || !chartConfig.yAxis) {
       toast.warning("Please fill all required fields");
       return;
     }
+    setPreview(true);
+  };
 
+  const handleSave = async () => {
     try {
       await dispatch(
         saveChart({
@@ -157,19 +160,32 @@ const ChartBuilderPage = () => {
           </Select>
         </FormControl>
 
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-          onClick={handleSave}
-          disabled={chartStatus === "loading"}
-        >
-          {chartStatus === "loading" ? "Saving..." : "Save Chart"}
-        </Button>
+        {!preview ? (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            onClick={handleGeneratePreview}
+          >
+            Generate Preview
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ mt: 2 }}
+            onClick={handleSave}
+            disabled={chartStatus === "loading"}
+          >
+            {chartStatus === "loading" ? "Saving..." : "Save Chart"}
+          </Button>
+        )}
 
-        <Box mt={3}>
-          <ChartPreview data={currentResult} config={chartConfig} />
-        </Box>
+        {preview && (
+          <Box mt={3}>
+            <ChartPreview data={currentResult} config={chartConfig} />
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,3 +1,4 @@
+import BarChart from "../../components/charts/BarChart";
 import ReactApexChart from "react-apexcharts";
 
 interface ChartPreviewProps {
@@ -13,8 +14,19 @@ interface ChartPreviewProps {
 const ChartPreview = ({ data, config }: ChartPreviewProps) => {
   if (!data?.length || !config.xAxis || !config.yAxis) return null;
 
+  if (config.type === "bar") {
+    return (
+      <BarChart
+        data={data}
+        xField={config.xAxis}
+        yField={config.yAxis}
+        title={config.title}
+      />
+    );
+  }
+
   const xData = data.map((d) => d[config.xAxis]);
-  const yData = data.map((d) => d[config.yAxis]);
+  const yData = data.map((d) => Number(d[config.yAxis]));
 
   const options: ApexCharts.ApexOptions = {
     chart: { type: config.type },

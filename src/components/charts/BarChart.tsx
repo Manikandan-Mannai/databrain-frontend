@@ -3,19 +3,16 @@ import ApexCharts from "react-apexcharts";
 import { Box, IconButton } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 
-interface ChartData {
-  [key: string]: number | string;
-  SUM_revenue: number;
-  product: string;
-}
-
 interface BarChartProps {
-  data: ChartData[];
+  data: any[];
+  xField: string;
+  yField: string;
+  title?: string;
 }
 
-const BarChart: React.FC<BarChartProps> = ({ data }) => {
-  const categories = data?.map((d) => d.product) || [];
-  const values = data?.map((d) => d.SUM_revenue) || [];
+const BarChart: React.FC<BarChartProps> = ({ data, xField, yField, title }) => {
+  const categories = data?.map((d) => d[xField]) || [];
+  const values = data?.map((d) => Number(d[yField])) || [];
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -25,17 +22,20 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
     },
     xaxis: {
       categories,
+      title: { text: xField },
       labels: { style: { colors: "#000" } },
     },
     yaxis: {
+      title: { text: yField },
       labels: { style: { colors: "#000" } },
     },
+    title: { text: title, align: "center" },
     grid: { borderColor: "#ddd" },
-    colors: ["#000"],
+    colors: ["#1976d2"],
     theme: { mode: "light" },
   };
 
-  const series = [{ name: "Value", data: values }];
+  const series = [{ name: yField, data: values }];
 
   const handleExport = () => {
     const chart = document.querySelector("#bar-chart") as HTMLElement | null;
@@ -47,7 +47,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "barchart.svg";
+      a.download = `${title || "chart"}.svg`;
       a.click();
       URL.revokeObjectURL(url);
     }
