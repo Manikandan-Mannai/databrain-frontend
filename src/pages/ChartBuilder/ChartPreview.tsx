@@ -1,52 +1,124 @@
-import BarChart from "../../components/charts/BarChart";
+// frontend/components/ChartPreview.tsx
+import React from "react";
 import ReactApexChart from "react-apexcharts";
+import { type ApexOptions } from "apexcharts";
 
-interface ChartPreviewProps {
-  data: any[];
-  config: {
-    xAxis: string;
-    yAxis: string;
-    type: "bar" | "line" | "pie";
-    title: string;
-  };
+interface SeriesConfig {
+  yField: string;
+  name: string;
+  type: "bar" | "line" | "area";
+  color?: string;
 }
 
-const ChartPreview = ({ data, config }: ChartPreviewProps) => {
-  if (!data?.length || !config.xAxis || !config.yAxis) return null;
+interface ChartConfig {
+  title: string;
+  type: "bar" | "line" | "pie" | "mixed";
+  xAxis?: string;
+  series: SeriesConfig[];
+  stack?: boolean;
+  pie?: { labelField: string; valueField: string };
+}
 
-  if (config.type === "bar") {
+interface Props {
+  data: any[];
+  config: ChartConfig;
+}
+
+const ChartPreview: React.FC<Props> = ({ data, config }) => {
+  if (!data?.length) {
     return (
-      <BarChart
-        data={data}
-        xField={config.xAxis}
-        yField={config.yAxis}
-        title={config.title}
+      <div style={{ padding: 16, textAlign: "center", color: "#666" }}>
+        No data
+      </div>
+    );
+  }
+
+  // PIE CHART
+  if (config.type === "pie" && config.pie) {
+    const labels = data
+      .map((d) => d[config.pie.labelField])
+      .filter((v): v is string => typeof v === "string" && v.trim() !== "");
+    const values = data.map((d) => Number(d[config.pie.valueField]) || 0);
+
+    const options: ApexOptions = {
+      chart: { type: "pie" },
+      labels,
+      colors: ["#000000", "#333333", "#666666", "#999999", "#cccccc"],
+      legend: { position: "bottom", labels: { colors: "#000" } },
+      title: {
+        text: config.title,
+        align: "left",
+        style: { fontSize: "14px", fontWeight: "bold" },
+      },
+    };
+
+    return (
+      <ReactApexChart
+        options={options}
+        series={values}
+        type="pie"
+        height={320}
       />
     );
   }
 
-  const xData = data.map((d) => d[config.xAxis]);
-  const yData = data.map((d) => Number(d[config.yAxis]));
+  // BAR / LINE / MIXED
+  if (!config.xAxis || config.series.length === 0) {
+    return (
+      <div style={{ padding: 16, color: "#999" }}>
+        Configure X-axis and Y-series
+      </div>
+    );
+  }
 
-  const options: ApexCharts.ApexOptions = {
-    chart: { type: config.type },
-    xaxis: { categories: xData, title: { text: config.xAxis } },
-    yaxis: { title: { text: config.yAxis } },
-    title: { text: config.title || "Chart Preview", align: "center" },
-    legend: { position: "bottom" },
+  const categories = Array.from(
+    new Set(data.map((d) => d[config.xAxis!]))
+  ).sort();
+  const series = config.series.map((s) => {
+    const values = categories.map((cat) => {
+      const row = data.find((r) => r[config.xAxis!] === cat);
+      return row ? Number(row[s.yField]) || 0 : 0;
+    });
+    return {
+      name: s.name || s.yField,
+      type: s.type,
+      data: values,
+    };
+  });
+
+  const options: ApexOptions = {
+    chart: {
+      type: config.type === "mixed" ? "line" : config.type,
+      stacked: config.stack || false,
+      toolbar: { show: false },
+      background: "transparent",
+    },
+    stroke: { width: config.type === "line" ? 2 : 0, curve: "smooth" },
+    xaxis: {
+      categories,
+      labels: { style: { colors: "#000" } },
+      title: { text: config.xAxis, style: { fontSize: "12px" } },
+    },
+    yaxis: {
+      labels: { style: { colors: "#000" } },
+      title: { text: "Values", style: { fontSize: "12px" } },
+    },
+    title: {
+      text: config.title,
+      align: "left",
+      style: { fontSize: "14px", fontWeight: "bold" },
+    },
+    colors: config.series.map((s) => s.color || "#666666"),
+    legend: { position: "top", labels: { colors: "#000" } },
+    grid: { borderColor: "#e0e0e0" },
   };
-
-  const series =
-    config.type === "pie"
-      ? [{ name: config.yAxis, data: yData }]
-      : [{ name: config.yAxis, data: yData }];
 
   return (
     <ReactApexChart
       options={options}
       series={series}
-      type={config.type}
-      height={350}
+      type={config.type === "mixed" ? "line" : config.type}
+      height={320}
     />
   );
 };

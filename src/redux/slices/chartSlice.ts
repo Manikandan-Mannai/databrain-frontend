@@ -17,22 +17,9 @@ const initialState: ChartState = {
 
 export const saveChart = createAsyncThunk(
   "charts/save",
-  async (
-    {
-      title,
-      type,
-      queryId,
-      config,
-    }: { title: string; type: string; queryId: string; config: any },
-    { rejectWithValue }
-  ) => {
+  async (payload: any, { rejectWithValue }) => {
     try {
-      const res = await api.post("/api/charts/create", {
-        title,
-        type,
-        queryId,
-        config,
-      });
+      const res = await api.post("/api/charts/create", payload);
       return res.data.data;
     } catch (err: any) {
       return rejectWithValue(
