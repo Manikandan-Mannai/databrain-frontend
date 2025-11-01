@@ -1,18 +1,42 @@
 import React from "react";
 import ApexCharts from "react-apexcharts";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Stack, Typography } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import html2canvas from "html2canvas";
 
 interface BarChartProps {
   data: any[];
-  xField: string;
-  yField: string;
+  config: any;
   title?: string;
+  series?: any[];
 }
 
-const BarChart: React.FC<BarChartProps> = ({ data, xField, yField, title }) => {
-  const categories = data?.map((d) => d[xField]) || [];
-  const values = data?.map((d) => Number(d[yField])) || [];
+const BarChart: React.FC<BarChartProps> = ({
+  data,
+  config,
+  title,
+  series: seriesConfig,
+}) => {
+  if (!data || data.length === 0) {
+    return <Box sx={{ p: 2, textAlign: "center" }}>No data available</Box>;
+  }
+
+  const categories = data.map((item: any) => item.label || "Unknown");
+
+  const seriesList = seriesConfig || config.series || [];
+
+  const series = seriesList.map((s: any) => {
+    const seriesName = s.name;
+    return {
+      name: seriesName,
+      data: data.map((item: any) => {
+        const valueObj = item.values?.find((v: any) => v.key === seriesName);
+        return valueObj ? valueObj.value : 0;
+      }),
+    };
+  });
+
+  const colors = seriesList.map((s: any) => s.color || "#000");
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -20,52 +44,78 @@ const BarChart: React.FC<BarChartProps> = ({ data, xField, yField, title }) => {
       toolbar: { show: false },
       background: "transparent",
     },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "55%",
+        borderRadius: 4,
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
     xaxis: {
       categories,
-      title: { text: xField },
-      labels: { style: { colors: "#000" } },
+      title: {
+        text: config.xAxisLabel || "Category",
+      },
     },
     yaxis: {
-      title: { text: yField },
-      labels: { style: { colors: "#000" } },
+      title: {
+        text: config.yAxisLabel || "Value",
+      },
     },
-    title: { text: title, align: "center" },
-    grid: { borderColor: "#ddd" },
-    colors: ["#1976d2"],
-    theme: { mode: "light" },
+    legend: {
+      show: config.showLegend !== false,
+      position: "top",
+    },
+    grid: {
+      show: config.showGrid !== false,
+    },
+    colors: colors,
+    tooltip: {
+      y: {
+        formatter: function (val: number) {
+          return val.toFixed(2);
+        },
+      },
+    },
   };
 
-  const series = [{ name: yField, data: values }];
-
-  const handleExport = () => {
-    const chart = document.querySelector("#bar-chart") as HTMLElement | null;
-    if (chart) {
-      const svg = chart.querySelector("svg");
-      if (!svg) return;
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${title || "chart"}.svg`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+  const handleExport = async () => {
+    const chartEl = document.querySelector(
+      `#chart-${title || "bar"}`
+    ) as HTMLElement;
+    if (!chartEl) return;
+    const canvas = await html2canvas(chartEl);
+    const link = document.createElement("a");
+    link.download = `${title || "chart"}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
   };
 
   return (
     <Box
-      sx={{ position: "relative", background: "#fff", p: 2, borderRadius: 2 }}
+      sx={{
+        position: "relative",
+        background: "#fff",
+        p: 2,
+        borderRadius: 2,
+        boxShadow: 1,
+      }}
     >
-      <IconButton
-        onClick={handleExport}
-        sx={{ position: "absolute", top: 5, right: 5 }}
-        size="small"
-      >
-        <DownloadIcon fontSize="small" />
-      </IconButton>
-      <div id="bar-chart">
-        <ApexCharts options={options} series={series} type="bar" height={300} />
+      {title && (
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+      )}
+      <Stack direction="row" justifyContent="flex-end">
+        <IconButton size="small" onClick={handleExport}>
+          <DownloadIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+      <div id={`chart-${title || "bar"}`}>
+        <ApexCharts options={options} series={series} type="bar" height={280} />
       </div>
     </Box>
   );

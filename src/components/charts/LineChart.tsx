@@ -1,21 +1,41 @@
 import React from "react";
 import ApexCharts from "react-apexcharts";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Stack, Typography } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
-
-interface ChartData {
-  [key: string]: number | string;
-  SUM_revenue: number;
-  product: string;
-}
+import html2canvas from "html2canvas";
 
 interface LineChartProps {
-  data: ChartData[];
+  data: any[];
+  config: any;
+  title?: string;
+  series?: any[];
 }
 
-const LineChart: React.FC<LineChartProps> = ({ data }) => {
-  const categories = data?.map((d) => d.product) || [];
-  const values = data?.map((d) => d.SUM_revenue) || [];
+const LineChart: React.FC<LineChartProps> = ({
+  data,
+  config,
+  title,
+  series: seriesConfig,
+}) => {
+  if (!data || data.length === 0) {
+    return <Box sx={{ p: 2, textAlign: "center" }}>No data available</Box>;
+  }
+
+  const categories = data.map((item: any) => item.label || "Unknown");
+  const seriesList = seriesConfig || config.series || [];
+
+  const series = seriesList.map((s: any) => {
+    const seriesName = s.name;
+    return {
+      name: seriesName,
+      data: data.map((item: any) => {
+        const valueObj = item.values?.find((v: any) => v.key === seriesName);
+        return valueObj ? valueObj.value : 0;
+      }),
+    };
+  });
+
+  const colors = seriesList.map((s: any) => s.color || "#000");
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -23,48 +43,79 @@ const LineChart: React.FC<LineChartProps> = ({ data }) => {
       toolbar: { show: false },
       background: "transparent",
     },
-    stroke: { curve: "smooth", width: 2, colors: ["#000"] },
-    xaxis: { categories, labels: { style: { colors: "#000" } } },
-    yaxis: { labels: { style: { colors: "#000" } } },
-    grid: { borderColor: "#ddd" },
-    theme: { mode: "light" },
+    stroke: {
+      curve: "smooth",
+      width: 2,
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    xaxis: {
+      categories,
+      title: {
+        text: config.xAxisLabel || "Category",
+      },
+    },
+    yaxis: {
+      title: {
+        text: config.yAxisLabel || "Value",
+      },
+    },
+    legend: {
+      show: config.showLegend !== false,
+      position: "top",
+    },
+    grid: {
+      show: config.showGrid !== false,
+    },
+    colors: colors,
+    tooltip: {
+      y: {
+        formatter: function (val: number) {
+          return val.toFixed(2);
+        },
+      },
+    },
   };
 
-  const series = [{ name: "Value", data: values }];
-
-  const handleExport = () => {
-    const chart = document.querySelector("#line-chart") as HTMLElement | null;
-    if (chart) {
-      const svg = chart.querySelector("svg");
-      if (!svg) return;
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "linechart.svg";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+  const handleExport = async () => {
+    const chartEl = document.querySelector(
+      `#chart-${title || "line"}`
+    ) as HTMLElement;
+    if (!chartEl) return;
+    const canvas = await html2canvas(chartEl);
+    const link = document.createElement("a");
+    link.download = `${title || "chart"}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
   };
 
   return (
     <Box
-      sx={{ position: "relative", background: "#fff", p: 2, borderRadius: 2 }}
+      sx={{
+        position: "relative",
+        background: "#fff",
+        p: 2,
+        borderRadius: 2,
+        boxShadow: 1,
+      }}
     >
-      <IconButton
-        onClick={handleExport}
-        sx={{ position: "absolute", top: 5, right: 5 }}
-        size="small"
-      >
-        <DownloadIcon fontSize="small" />
-      </IconButton>
-      <div id="line-chart">
+      {title && (
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+      )}
+      <Stack direction="row" justifyContent="flex-end">
+        <IconButton size="small" onClick={handleExport}>
+          <DownloadIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+      <div id={`chart-${title || "line"}`}>
         <ApexCharts
           options={options}
           series={series}
           type="line"
-          height={300}
+          height={280}
         />
       </div>
     </Box>
