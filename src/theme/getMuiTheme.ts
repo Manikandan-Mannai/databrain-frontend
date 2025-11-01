@@ -6,7 +6,7 @@ export const getMuiTheme = (mode: "light" | "dark") =>
     palette: {
       mode,
       primary: {
-        main: mode === "light" ? "#0075FF" : "#1db3c7",
+        main: mode === "light" ? "#fff" : "#1db3c7",
         contrastText: "#fff",
       },
       secondary: {
