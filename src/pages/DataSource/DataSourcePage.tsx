@@ -1,58 +1,56 @@
-import { useEffect, useState } from "react";
+import { Delete, UploadFile } from "@mui/icons-material";
 import {
+  Alert,
   Box,
-  Typography,
-  Paper,
+  Button,
+  CircularProgress,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  IconButton,
-  Button,
-  Chip,
-  Alert,
-  CircularProgress,
+  Paper,
+  Typography,
 } from "@mui/material";
-import { Delete, UploadFile } from "@mui/icons-material";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  deleteDataSource,
   fetchDataSources,
   uploadCSV,
-  deleteDataSource,
 } from "../../redux/slices/dataSlice";
-import type { RootState, AppDispatch } from "../../redux/store/store";
+import type { AppDispatch, RootState } from "../../redux/store/store";
 import type { DataSource } from "../../redux/types/index";
+import { toast } from "react-toastify";
 
 export default function DataSourcePage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { sources, status } = useSelector((state: RootState) => state.data);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { sources, status } = useSelector(
+    (state: RootState) => state?.data ?? {}
+  );
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-
-  const isEditor = user?.role === "admin" || user?.role === "editor";
 
   useEffect(() => {
     if (status === "idle") dispatch(fetchDataSources());
   }, [dispatch, status]);
 
   const onDrop = async (acceptedFiles: File[]) => {
-    if (!isEditor) return;
-    const file = acceptedFiles[0];
+    const file = acceptedFiles?.[0];
     if (!file) return;
-
     setUploading(true);
     setUploadError(null);
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("name", file.name);
-
     try {
       await dispatch(uploadCSV(formData)).unwrap();
       dispatch(fetchDataSources());
+      toast.success("File uploaded successfully");
     } catch (err: any) {
-      setUploadError(err.message || "Upload failed");
+      const message = err?.message || "Upload failed";
+      setUploadError(message);
+      toast.error(message);
     } finally {
       setUploading(false);
     }
@@ -62,12 +60,17 @@ export default function DataSourcePage() {
     onDrop,
     accept: { "text/csv": [".csv"] },
     multiple: false,
-    disabled: !isEditor,
   });
 
-  const handleDelete = async (id: string) => {
-    await dispatch(deleteDataSource(id)).unwrap();
-    dispatch(fetchDataSources());
+  const handleDelete = async (id?: string) => {
+    if (!id) return;
+    try {
+      await dispatch(deleteDataSource(id)).unwrap();
+      dispatch(fetchDataSources());
+      toast.success("Data source deleted successfully");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to delete data source");
+    }
   };
 
   return (
@@ -79,38 +82,55 @@ export default function DataSourcePage() {
         Upload and manage your data sources
       </Typography>
 
-      {isEditor && (
-        <Paper
-          {...getRootProps()}
+      <Paper
+        {...getRootProps?.()}
+        sx={{
+          border: "2px dashed",
+          borderColor: isDragActive ? "text.primary" : "grey.400",
+          borderRadius: 2,
+          p: 4,
+          textAlign: "center",
+          cursor: "pointer",
+          backgroundColor: isDragActive ? "action.hover" : "transparent",
+          mt: 3,
+          mb: 4,
+        }}
+      >
+        <input {...getInputProps?.()} />
+        <UploadFile sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
+        <Typography variant="h6" gutterBottom>
+          Upload a CSV file
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Drag and drop your file here, or click to browse
+        </Typography>
+        <Button
+          variant="outlined"
+          disabled={uploading}
           sx={{
-            border: "2px dashed",
-            borderColor: isDragActive ? "primary.main" : "grey.400",
-            borderRadius: 2,
-            p: 4,
-            textAlign: "center",
-            cursor: isEditor ? "pointer" : "not-allowed",
-            backgroundColor: isDragActive ? "action.hover" : "transparent",
-            mt: 3,
-            mb: 4,
+            mt: 2,
+            px: 2,
+            py: 0.5,
+            fontSize: 13,
+            borderRadius: 1.5,
+            textTransform: "none",
+            borderColor: "text.primary",
+            color: "white",
+            bgcolor: "black",
+            transition: "opacity 0.2s ease, background-color 0.2s ease",
+            "&:hover": {
+              opacity: 0.7,
+              bgcolor: "black",
+            },
           }}
         >
-          <input {...getInputProps()} />
-          <UploadFile sx={{ fontSize: 48, color: "grey.500", mb: 2 }} />
-          <Typography variant="h6" gutterBottom>
-            Upload a CSV file
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Drag and drop your file here, or click to browse
-          </Typography>
-          <Button
-            variant="contained"
-            disabled={uploading || !isEditor}
-            sx={{ mt: 2 }}
-          >
-            {uploading ? <CircularProgress size={20} /> : "Choose File"}
-          </Button>
-        </Paper>
-      )}
+          {uploading ? (
+            <CircularProgress size={16} sx={{ color: "white" }} />
+          ) : (
+            "Choose File"
+          )}
+        </Button>
+      </Paper>
 
       {uploadError && (
         <Alert
@@ -132,71 +152,85 @@ export default function DataSourcePage() {
         </Box>
       )}
 
-      {status === "succeeded" && sources.length === 0 && (
+      {status === "succeeded" && (sources?.length ?? 0) === 0 && (
         <Paper sx={{ p: 3, textAlign: "center", color: "text.secondary" }}>
           <Typography>No data sources uploaded yet</Typography>
         </Paper>
       )}
 
       <List>
-        {sources.map((source: DataSource) => (
+        {sources?.map?.((source: DataSource) => (
           <ListItem
-            key={source._id}
+            key={source?._id ?? Math.random()}
             secondaryAction={
-              isEditor && (
-                <IconButton
-                  edge="end"
-                  color="error"
-                  onClick={() => handleDelete(source._id)}
-                >
-                  <Delete />
-                </IconButton>
-              )
+              <IconButton
+                edge="end"
+                onClick={() => handleDelete(source?._id)}
+                sx={{
+                  color: "text.primary",
+                  bgcolor: "transparent",
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+              >
+                <Delete />
+              </IconButton>
             }
             sx={{
               border: 1,
-              borderColor: "grey.300",
-              borderRadius: 1,
-              mb: 1,
+              borderColor: "divider",
+              borderRadius: 2,
+              mb: 1.5,
+              p: 1.5,
               bgcolor: "background.paper",
             }}
           >
             <ListItemText
               primary={
-                <Typography variant="subtitle1" fontWeight="medium">
-                  {source.name}
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={600}
+                  color="text.primary"
+                  sx={{ fontSize: 16 }}
+                >
+                  {source?.name ?? "Unnamed Source"}
                 </Typography>
               }
               secondary={
-                <>
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                    display="inline"
-                  >
-                    {source.rowCount} rows • {source.columns.length} columns
-                  </Typography>
-                  {" • "}
+                <Box component="span">
                   <Typography
                     component="span"
                     variant="body2"
                     color="text.secondary"
-                    display="inline"
+                    sx={{ display: "block", mt: 0.5, fontSize: 13 }}
                   >
-                    Uploaded {new Date(source.createdAt).toLocaleString()}
+                    {source?.rowCount ?? 0} rows •{" "}
+                    {source?.columns?.length ?? 0} columns
+                    {" • "}
+                    Uploaded{" "}
+                    {source?.createdAt
+                      ? new Date(source.createdAt).toLocaleString()
+                      : "N/A"}
                   </Typography>
-                  <Box mt={1} component="div">
-                    {source.columns.map((col) => (
-                      <Chip
-                        key={col}
-                        label={col}
-                        size="small"
-                        sx={{ mr: 0.5, mb: 0.5 }}
-                      />
+
+                  <Box mt={1} display="flex" flexWrap="wrap" gap={0.6}>
+                    {source?.columns?.map?.((col) => (
+                      <Box
+                        key={col ?? Math.random()}
+                        sx={{
+                          px: 1.2,
+                          py: 0.3,
+                          borderRadius: 1,
+                          bgcolor: "action.hover",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: "text.secondary",
+                        }}
+                      >
+                        {col ?? "Unnamed Column"}
+                      </Box>
                     ))}
                   </Box>
-                </>
+                </Box>
               }
             />
           </ListItem>

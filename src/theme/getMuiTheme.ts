@@ -22,7 +22,7 @@ export const getMuiTheme = (mode: "light" | "dark") =>
       },
     },
     typography: {
-      fontFamily: "Quicksand, sans-serif",
+      fontFamily: "sans-serif",
     },
     shape: {
       borderRadius: 12,

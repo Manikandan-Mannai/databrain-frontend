@@ -2,9 +2,9 @@ import {
   Brightness4,
   Brightness7,
   Dashboard as DashboardIcon,
-  QueryStats,
   UploadFile
 } from "@mui/icons-material";
+import ConstructionIcon from "@mui/icons-material/Construction";
 import {
   Box,
   Drawer,
@@ -41,7 +41,7 @@ const navItems = [
   {
     name: "Query Builder",
     path: "/queries/new",
-    icon: <QueryStats fontSize="small" />,
+    icon: <ConstructionIcon fontSize="small" />,
     roles: ["admin", "editor"],
   },
 ];
