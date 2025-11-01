@@ -1,76 +1,95 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  type PayloadAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../services/apiService";
 
-interface Chart {
-  _id: string;
-  title: string;
-  type: "bar" | "line" | "pie";
-  queryId: string;
-  data: {
-    labels: string[];
-    datasets: Array<{
-      label: string;
-      data: number[];
-      backgroundColor?: string[];
-    }>;
-  };
-  userId: string;
-}
-
 interface ChartState {
-  charts: Chart[];
+  charts: any[];
+  currentChart: any | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: ChartState = {
   charts: [],
+  currentChart: null,
   status: "idle",
   error: null,
 };
 
-export const fetchChart = createAsyncThunk<
-  Chart,
-  string,
-  { rejectValue: string }
->("chart/fetch", async (id, { rejectWithValue }) => {
-  try {
-    const res = await api.get<{ data: Chart }>(`/charts/${id}`);
-    return res.data.data;
-  } catch {
-    return rejectWithValue("Failed to load chart");
+export const saveChart = createAsyncThunk(
+  "charts/save",
+  async (
+    {
+      title,
+      type,
+      queryId,
+      config,
+    }: { title: string; type: string; queryId: string; config: any },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.post("/api/charts/create", {
+        title,
+        type,
+        queryId,
+        config,
+      });
+      return res.data.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to save chart"
+      );
+    }
   }
-});
+);
+
+export const fetchCharts = createAsyncThunk(
+  "charts/fetchAll",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/api/charts/list");
+      return res.data.data;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch charts"
+      );
+    }
+  }
+);
 
 const chartSlice = createSlice({
-  name: "chart",
+  name: "charts",
   initialState,
   reducers: {
-    updateChartOrder: (
-      state,
-      action: PayloadAction<{ dashboardId: string; chartIds: string[] }>
-    ) => {
-      // Handled in dashboard
+    clearCurrentChart: (state) => {
+      state.currentChart = null;
+      state.status = "idle";
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchChart.pending, (state) => {
+      .addCase(saveChart.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchChart.fulfilled, (state, action) => {
+      .addCase(saveChart.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const index = state.charts.findIndex(
-          (c) => c._id === action.payload._id
-        );
-        if (index >= 0) state.charts[index] = action.payload;
-        else state.charts.push(action.payload);
+        state.currentChart = action.payload;
+        state.charts.push(action.payload);
+      })
+      .addCase(saveChart.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
+      .addCase(fetchCharts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.charts = action.payload || [];
+      })
+      .addCase(fetchCharts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
       });
   },
 });
 
+export const { clearCurrentChart } = chartSlice.actions;
 export default chartSlice.reducer;

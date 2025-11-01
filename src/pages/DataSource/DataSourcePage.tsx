@@ -173,6 +173,7 @@ export default function DataSourcePage() {
                     component="span"
                     variant="body2"
                     color="text.primary"
+                    display="inline"
                   >
                     {source.rowCount} rows • {source.columns.length} columns
                   </Typography>
@@ -181,10 +182,11 @@ export default function DataSourcePage() {
                     component="span"
                     variant="body2"
                     color="text.secondary"
+                    display="inline"
                   >
                     Uploaded {new Date(source.createdAt).toLocaleString()}
                   </Typography>
-                  <Box mt={1}>
+                  <Box mt={1} component="div">
                     {source.columns.map((col) => (
                       <Chip
                         key={col}
