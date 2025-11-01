@@ -1,12 +1,11 @@
 import {
-  BarChart,
+  Brightness4,
+  Brightness7,
   Dashboard as DashboardIcon,
   QueryStats,
-  UploadFile,
+  UploadFile
 } from "@mui/icons-material";
-import MenuIcon from "@mui/icons-material/Menu";
 import {
-  AppBar,
   Box,
   Drawer,
   IconButton,
@@ -14,40 +13,35 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { toggleTheme } from "../redux/slices/themeSlice";
 import type { RootState } from "../redux/store/store";
 
-const drawerWidth = 240;
+const drawerWidth = 70;
 
 const navItems = [
   {
     name: "Dashboard",
     path: "/dashboard",
-    icon: <DashboardIcon />,
+    icon: <DashboardIcon fontSize="small" />,
     roles: ["admin", "editor", "viewer"],
   },
   {
     name: "Data Sources",
     path: "/data",
-    icon: <UploadFile />,
+    icon: <UploadFile fontSize="small" />,
     roles: ["admin", "editor", "viewer"],
   },
   {
     name: "Query Builder",
     path: "/queries/new",
-    icon: <QueryStats />,
-    roles: ["admin", "editor"],
-  },
-  {
-    name: "New Chart",
-    path: "/charts/new",
-    icon: <BarChart />,
+    icon: <QueryStats fontSize="small" />,
     roles: ["admin", "editor"],
   },
 ];
@@ -57,6 +51,8 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { mode } = useSelector((state: RootState) => state.theme);
+  const dispatch = useDispatch();
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
@@ -65,65 +61,87 @@ export default function MainLayout() {
   );
 
   const drawer = (
-    <Box>
-      <Toolbar />
-      <Typography
-        variant="h6"
-        sx={{ my: 2, textAlign: "center", fontWeight: "bold" }}
-      >
-        DataBrain
-      </Typography>
-      <List>
-        {filteredItems.map((item) => (
-          <ListItem key={item.name} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                setMobileOpen(false);
-              }}
-              sx={{
-                "&.Mui-selected": {
-                  backgroundColor: "action.selected",
-                  "&:hover": { backgroundColor: "action.selected" },
-                },
-              }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        pt: 1,
+        bgcolor: "background.paper",
+      }}
+    >
+      <Toolbar sx={{ justifyContent: "center", minHeight: 56 }}>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{ fontSize: 14, letterSpacing: 0.5 }}
+        >
+          DB
+        </Typography>
+      </Toolbar>
+
+      <List sx={{ flexGrow: 1 }}>
+        {filteredItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <ListItem
+              key={item.name}
+              disablePadding
+              sx={{ justifyContent: "center" }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+              <Tooltip title={item.name} placement="right">
+                <ListItemButton
+                  onClick={() => {
+                    navigate(item.path);
+                    setMobileOpen(false);
+                  }}
+                  sx={{
+                    justifyContent: "center",
+                    m: 0.3,
+                    height: 40,
+                    bgcolor: isActive ? "action.selected" : "transparent",
+                    color: isActive ? "text.primary" : "text.secondary",
+                    "&:hover": {
+                      bgcolor: isActive ? "action.selected" : "action.hover",
+                    },
+                    transition: "all 0.25s ease",
+                    borderRadius: 0,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      justifyContent: "center",
+                      color: "inherit",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+          );
+        })}
       </List>
+
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+        <IconButton
+          onClick={() => dispatch(toggleTheme())}
+          sx={{
+            width: 34,
+            height: 34,
+            color: "text.secondary",
+            "&:hover": { color: "text.primary" },
+          }}
+        >
+          {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+        </IconButton>
+      </Box>
     </Box>
   );
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          bgcolor: "background.paper",
-          color: "text.primary",
-          boxShadow: 1,
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" fontWeight="bold">
-            DataBrain Analytics Platform
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
@@ -136,8 +154,10 @@ export default function MainLayout() {
           sx={{
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
               width: drawerWidth,
+              boxSizing: "border-box",
+              borderRight: "1px solid",
+              borderColor: "divider",
             },
           }}
         >
@@ -149,8 +169,11 @@ export default function MainLayout() {
           sx={{
             display: { xs: "none", sm: "block" },
             "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
               width: drawerWidth,
+              boxSizing: "border-box",
+              borderRight: "1px solid",
+              borderColor: "divider",
+              borderRadius: 0,
             },
           }}
           open
@@ -159,15 +182,7 @@ export default function MainLayout() {
         </Drawer>
       </Box>
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-        }}
-      >
-        <Toolbar />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Outlet />
       </Box>
     </Box>

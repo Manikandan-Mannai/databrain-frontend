@@ -4,6 +4,7 @@ import chartSlice from "../slices/chartSlice";
 import dataReducer from "../slices/dataSlice";
 import queryReducer from "../slices/querySlice";
 import dashboardReducer from "../slices/dashboardSlice";
+import themeReducer from "../slices/themeSlice";
 
 const rootReducer = combineReducers({
   auth: authSlice,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   data: dataReducer,
   query: queryReducer,
   dashboard: dashboardReducer,
+  theme: themeReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
