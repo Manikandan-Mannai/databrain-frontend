@@ -1,35 +1,38 @@
-import React from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 
-interface AuthLayoutProps {
+const AuthLayout = ({
+  title,
+  children,
+}: {
   title: string;
   children: React.ReactNode;
-}
-
-const AuthLayout: React.FC<AuthLayoutProps> = ({ title, children }) => {
+}) => {
   return (
     <Box
       display="flex"
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
-      bgcolor="background.default"
+      bgcolor="#fff"
     >
-      <Paper
-        elevation={3}
+      <Card
         sx={{
-          p: 4,
-          width: "100%",
-          maxWidth: 400,
-          borderRadius: 3,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)"
         }}
       >
-        <Typography variant="h5" mb={3} textAlign="center" fontWeight={600}>
-          {title}
-        </Typography>
-        {children}
-      </Paper>
+        <CardContent sx={{ p: 3 }}>
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            textAlign="center"
+            color="black"
+            mb={2}
+          >
+            {title}
+          </Typography>
+          {children}
+        </CardContent>
+      </Card>
     </Box>
   );
 };

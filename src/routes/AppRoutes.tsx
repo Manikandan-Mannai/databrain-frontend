@@ -1,7 +1,6 @@
 import { Box, CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
-import LoginForm from "../components/auth/LoginForm";
 import MainLayout from "../layout/MainLayout";
 import Dashboard from "../pages/dashboard/Dashboard";
 import DataSourcePage from "../pages/DataSource/DataSourcePage";
@@ -10,6 +9,8 @@ import ChartBuilderPage from "../pages/ChartBuilder/ChartBuilderPage";
 import Unauthorized from "../pages/Unauthorized";
 import type { RootState } from "../redux/store/store";
 import PrivateRoute from "./PrivateRoute";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
 
 const AppRoutes = () => {
   const { authenticated, status } = useSelector(
@@ -39,17 +40,13 @@ const AppRoutes = () => {
           authenticated ? (
             <Navigate to="/dashboard" replace />
           ) : (
-            <Navigate to="/login" replace />
+            <Navigate to="/auth/login" replace />
           )
         }
       />
 
-      <Route
-        path="/login"
-        element={
-          authenticated ? <Navigate to="/dashboard" replace /> : <LoginForm />
-        }
-      />
+      <Route path="/auth/login" element={<Login />} />
+      <Route path="/auth/register" element={<Register />} />
 
       <Route path="/unauthorized" element={<Unauthorized />} />
 
@@ -88,7 +85,7 @@ const AppRoutes = () => {
         />
       </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/auth/login" replace />} />
     </Routes>
   );
 };
