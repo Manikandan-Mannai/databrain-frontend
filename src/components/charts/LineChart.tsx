@@ -5,8 +5,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import html2canvas from "html2canvas";
 
 interface LineChartProps {
-  data: any[];
-  config: any;
+  data?: any[];
+  config?: any;
   title?: string;
   series?: any[];
 }
@@ -17,25 +17,29 @@ const LineChart: React.FC<LineChartProps> = ({
   title,
   series: seriesConfig,
 }) => {
-  if (!data || data.length === 0) {
+  if (!data?.length) {
     return <Box sx={{ p: 2, textAlign: "center" }}>No data available</Box>;
   }
 
-  const categories = data.map((item: any) => item.label || "Unknown");
-  const seriesList = seriesConfig || config.series || [];
+  const categories = data?.map?.((item: any) => item?.label || "Unknown") || [];
+  const seriesList = seriesConfig || config?.series || [];
 
-  const series = seriesList.map((s: any) => {
-    const seriesName = s.name;
-    return {
-      name: seriesName,
-      data: data.map((item: any) => {
-        const valueObj = item.values?.find((v: any) => v.key === seriesName);
-        return valueObj ? valueObj.value : 0;
-      }),
-    };
-  });
+  const series =
+    seriesList?.map?.((s: any) => {
+      const seriesName = s?.name || "";
+      return {
+        name: seriesName,
+        data:
+          data?.map?.((item: any) => {
+            const valueObj = item?.values?.find?.(
+              (v: any) => v?.key === seriesName
+            );
+            return valueObj?.value ?? 0;
+          }) || [],
+      };
+    }) || [];
 
-  const colors = seriesList.map((s: any) => s.color || "#000");
+  const colors = seriesList?.map?.((s: any) => s?.color || "#000") || [];
 
   const options: ApexCharts.ApexOptions = {
     chart: {
@@ -47,59 +51,44 @@ const LineChart: React.FC<LineChartProps> = ({
       curve: "smooth",
       width: 2,
     },
-    dataLabels: {
-      enabled: false,
-    },
+    dataLabels: { enabled: false },
     xaxis: {
-      categories,
-      title: {
-        text: config.xAxisLabel || "Category",
-      },
+      categories: categories,
+      title: { text: config?.xAxisLabel || "Category" },
     },
     yaxis: {
-      title: {
-        text: config.yAxisLabel || "Value",
+      title: { text: config?.yAxisLabel || "Value" },
+      labels: {
+        formatter: (val?: number) => val?.toFixed?.(2) || "0.00",
       },
     },
     legend: {
-      show: config.showLegend !== false,
+      show: config?.showLegend !== false,
       position: "top",
     },
-    grid: {
-      show: config.showGrid !== false,
-    },
+    grid: { show: config?.showGrid !== false },
     colors: colors,
     tooltip: {
       y: {
-        formatter: function (val: number) {
-          return val.toFixed(2);
-        },
+        formatter: (val?: number) => val?.toFixed?.(2) || "0.00",
       },
     },
   };
 
   const handleExport = async () => {
-    const chartEl = document.querySelector(
-      `#chart-${title || "line"}`
-    ) as HTMLElement;
+    const chartId = `chart-${title || "line"}`;
+    const chartEl = document?.querySelector?.(`#${chartId}`) as HTMLElement;
     if (!chartEl) return;
     const canvas = await html2canvas(chartEl);
-    const link = document.createElement("a");
+    const link = document?.createElement?.("a");
+    if (!link) return;
     link.download = `${title || "chart"}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
+    link.href = canvas?.toDataURL?.() || "";
+    link?.click?.();
   };
 
   return (
-    <Box
-      sx={{
-        position: "relative",
-        background: "#fff",
-        p: 2,
-        borderRadius: 2,
-        boxShadow: 1,
-      }}
-    >
+    <Box>
       {title && (
         <Typography variant="h6" gutterBottom>
           {title}
