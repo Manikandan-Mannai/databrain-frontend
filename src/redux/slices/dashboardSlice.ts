@@ -6,6 +6,11 @@ interface Dashboard {
   name: string;
   accessLevel: "public" | "private" | "shared";
   sharedWith?: string[];
+  createdBy: {
+    _id: string;
+    name?: string;
+    email?: string;
+  };
   charts: Array<{
     chartId: {
       _id: string;
@@ -73,9 +78,8 @@ export const fetchDashboard = createAsyncThunk(
   "dashboard/fetchOne",
   async (id: string | undefined, { rejectWithValue }) => {
     try {
-      if (!id || id === "undefined" || id === "null") {
+      if (!id || id === "undefined" || id === "null")
         return rejectWithValue("Invalid dashboard ID provided");
-      }
       const res = await api.get(`/api/dashboard/${id}`);
       return res.data.data;
     } catch (error: any) {
@@ -99,7 +103,8 @@ export const updateDashboard = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await api.put(`/api/dashboard/${payload.id}`, payload);
+      const { id, ...data } = payload;
+      const res = await api.put(`/api/dashboard/${id}`, data);
       return res.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -118,6 +123,23 @@ export const deleteDashboard = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete dashboard"
+      );
+    }
+  }
+);
+
+export const removeChartFromDashboard = createAsyncThunk(
+  "dashboard/removeChart",
+  async (
+    { dashboardId, chartId }: { dashboardId: string; chartId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      await api.delete(`/api/dashboard/${dashboardId}/chart/${chartId}`);
+      return { dashboardId, chartId };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to remove chart"
       );
     }
   }
@@ -176,8 +198,8 @@ const dashboardSlice = createSlice({
       })
       .addCase(updateDashboard.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const index = state.list.findIndex((d) => d._id === action.payload._id);
-        if (index !== -1) state.list[index] = action.payload;
+        const idx = state.list.findIndex((d) => d._id === action.payload._id);
+        if (idx !== -1) state.list[idx] = action.payload;
         if (state.current?._id === action.payload._id)
           state.current = action.payload;
       })
@@ -196,6 +218,16 @@ const dashboardSlice = createSlice({
       .addCase(deleteDashboard.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+      .addCase(removeChartFromDashboard.fulfilled, (state, action) => {
+        const { dashboardId, chartId } = action.payload;
+        const dash = state.list.find((d) => d._id === dashboardId);
+        if (dash)
+          dash.charts = dash.charts.filter((c) => c.chartId._id !== chartId);
+        if (state.current?._id === dashboardId)
+          state.current.charts = state.current.charts.filter(
+            (c) => c.chartId._id !== chartId
+          );
       });
   },
 });
