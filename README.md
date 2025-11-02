@@ -1,4 +1,3 @@
-```markdown
 # Data Query and Visualization Platform - Frontend
 
 A modern frontend built with React, TypeScript, Redux Toolkit, and Material UI for building and visualizing data queries through interactive dashboards.
@@ -132,6 +131,3 @@ VITE_BACKEND_URL=http://localhost:5000
 | Set Shared People                                      | Role Management                              |
 | -------------------------------------------- | -------------------------------------------- |
 | <img src="./src/assets/11.png" width="400"/> | <img src="./src/assets/12.png" width="400"/> |
-
-```
-```
