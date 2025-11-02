@@ -6,7 +6,7 @@ export const GRAY_SHADES = ["#000", "#333", "#666", "#999", "#ccc"];
 export const MAX_CHARTS = 4;
 
 export const useChartBuilder = (initialConfig: ChartConfig) => {
-  const [config, setConfig] = useState(initialConfig);
+  const [config, setConfig] = useState<ChartConfig>(initialConfig);
   const [preview, setPreview] = useState(false);
   const [group, setGroup] = useState<any[]>([]);
   const [dashboardName, setDashboardName] = useState("");
@@ -103,6 +103,7 @@ export const useChartBuilder = (initialConfig: ChartConfig) => {
         pieSeries: [],
         xAxis: "",
         series: [{ yField: "", name: "", type: "bar" }],
+        stack: false,
       };
     });
   };

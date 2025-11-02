@@ -69,15 +69,15 @@ const ChartBuilderPage: React.FC = () => {
 
     let payload: any;
 
-    if (config.type === "pie") {
+    if (config.type === "pie" && config.pieLabel && config.pieValue) {
       const labels = currentResult
-        .map((row) => row[config.pieLabel])
+        .map((row) => row[config.pieLabel as keyof typeof row])
         .filter(
           (v) => v !== undefined && v !== null && String(v).trim() !== ""
         );
 
       const values = currentResult
-        .map((row) => Number(row[config.pieValue]) || 0)
+        .map((row) => Number(row[config.pieValue as keyof typeof row]) || 0)
         .filter((v) => !isNaN(v));
 
       payload = {
@@ -148,6 +148,7 @@ const ChartBuilderPage: React.FC = () => {
         xAxis: "",
         series: [{ yField: "", name: "", type: "bar" }],
         stack: false,
+        pieSeries: [],
         pieLabel: "",
         pieValue: "",
       });
