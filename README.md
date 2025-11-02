@@ -1,7 +1,6 @@
-# 🧠 Data Query & Visualization Platform — Frontend Implementation
+# Data Query & Visualization Platform — Frontend Implementation
 
-This is my implementation of the **Frontend** for the “Data Query & Visualization Platform” take-home assignment.  
-I carefully went through the given brief, broke it down into deliverables, and focused on solving the real product and engineering challenges rather than just wiring screens.
+This is my **Frontend** implementation for the "Data Query and Visualization" Platform take home assignment. I studied the brief carefully broke it into tasks and focused on solving real product and engineering problems
 
 ---
 
@@ -22,25 +21,24 @@ I structured the app to handle all these while ensuring smooth UX, performance, 
 
 ### 1. **Data Source Upload (CSV)**
 Instead of overcomplicating with multiple sources, I focused on a clean **CSV upload flow** that instantly parses and stores dataset metadata in Redux for reusability across Query Builder and Chart Builder.  
-I used Papaparse for large CSV handling (1000+ rows) with chunked parsing to keep the UI responsive.
 
-**PS:** Handled large CSVs efficiently with async parsing + React Suspense to prevent blocking UI threads.
+**PS:** Handled large CSVs efficiently with async parsing + React Suspense to prevent blocking UI threads by Paginayion.
 
 ---
 
 ### 2. **Query Builder**
-Built a fully interactive UI that lets users select **dimensions, metrics, filters, and aggregations (SUM, AVG, COUNT, etc.)** visually — no raw SQL.  
+Built a fully interactive UI that lets users select **dimensions, metrics, filters, and aggregations (SUM, AVG, COUNT, etc.)** visually, no raw SQL.  
 The state is fully typed and managed via Redux Toolkit slices to keep it predictable and easily extensible.
 
-**PS:** Implemented “instant preview” — query results auto-refresh when parameters change, helping non-technical users see results live.
+**PS:** Implemented “instant preview” query results auto-refresh when parameters change, helping non-technical users see results live.
 
 ---
 
 ### 3. **Chart Builder**
-Integrated **ApexCharts** and **Chart.js** for flexible chart types — Bar, Line, and Pie.  
+Integrated **ApexCharts** and **Chart.js** for flexible chart types Bar, Line, and Pie.  
 Charts update automatically when query data changes and preserve configuration state even after navigation.
 
-**PS:** Implemented a reusable `<ChartBuilder />` that unifies data mapping logic and supports dark/light theme out of the box.
+**PS:** Implemented a reusable `<ChartBuilder />` that unifies data mapping logic
 
 ---
 
@@ -48,7 +46,7 @@ Charts update automatically when query data changes and preserve configuration s
 Users can save and organize charts into dashboards, which are fetched and persisted through backend APIs.  
 Each dashboard includes **access level** (private, public, shared) and optional sharing to specific users.
 
-**PS:** I optimized the dashboard list and viewer mode to be role-aware — so viewers only see allowed dashboards, but editors/admins retain edit access dynamically.
+**PS:** I optimized the dashboard list and viewer mode to be role-aware, so viewers only see allowed dashboards, but editors/admins retain edit access dynamically.
 
 ---
 
@@ -56,7 +54,7 @@ Each dashboard includes **access level** (private, public, shared) and optional 
 Roles (Admin, Editor, Viewer) are simulated in frontend state and influence visibility, permissions, and UI availability.  
 Protected routes ensure only valid roles access specific screens.
 
-**PS:** Used `PrivateRoute` + centralized `useAuth` hook for role-based navigation; consistent across routes and layout components.
+**PS:** Used `PrivateRoute` + centralized `useAuth` hook for role based navigation, consistent across routes and layout components.
 
 ---
 
@@ -64,15 +62,7 @@ Protected routes ensure only valid roles access specific screens.
 Used **Redux Toolkit** slices for `auth`, `chart`, `dashboard`, and `query`.  
 Each slice isolates async logic via `createAsyncThunk` and uses normalized state.  
 
-**PS:** Designed Redux slices so all CRUD operations are optimistic — UI updates instantly and rolls back if API fails, improving perceived performance.
-
----
-
-### 7. **UI & Theming**
-Built with **Material UI (MUI)** — consistent design system, full dark/light theme switcher, and responsive layouts.  
-Dashboard and builder UIs use grid-based adaptive layouts for both desktop and laptop views.
-
-**PS:** Extended MUI theme context for dynamic color palettes used across ApexCharts — ensuring chart color consistency across themes.
+**PS:** Designed Redux slices so all CRUD operations are optimistic, UI updates instantly and rolls back if API fails.
 
 ---
 
@@ -91,7 +81,7 @@ Dashboard and builder UIs use grid-based adaptive layouts for both desktop and l
 
 | Role   | Capabilities                                          |
 | ------ | ----------------------------------------------------- |
-| Admin  | Full access to users, charts, data, and dashboards    |
+| Admin  | Full access to users, charts, queries, data source, and dashboards    |
 | Editor | Create and manage own queries, charts, and dashboards |
 | Viewer | View shared and public dashboards                     |
 
