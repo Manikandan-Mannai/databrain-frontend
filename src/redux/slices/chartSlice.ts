@@ -20,10 +20,10 @@ export const saveChart = createAsyncThunk(
   async (payload: any, { rejectWithValue }) => {
     try {
       const res = await api.post("/api/charts/create", payload);
-      return res.data.data;
+      return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.message || "Failed to save chart"
+        err.response?.data?.error || "Failed to save chart"
       );
     }
   }

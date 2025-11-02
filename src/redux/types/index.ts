@@ -77,3 +77,26 @@ export interface Dashboard {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Series {
+  yField: string;
+  name: string;
+  type: "bar" | "line" | "area";
+}
+
+export interface PieSeries {
+  labelField: string;
+  valueField: string;
+  name: string;
+}
+
+export interface ChartConfig {
+  title: string;
+  type: "bar" | "line" | "pie";
+  xAxis: string;
+  series: Series[];
+  stack?: boolean;
+  pieSeries: PieSeries[];
+  pieLabel?: string;
+  pieValue?: string;
+}

@@ -29,6 +29,13 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({
   const isSuccess = status === "succeeded";
   const isIdle = status === "idle";
 
+  const formatValue = (val: any): string => {
+    if (typeof val === "number" && !Number.isNaN(val) && Number.isFinite(val)) {
+      return val.toFixed(2);
+    }
+    return String(val);
+  };
+
   return (
     <Card
       sx={{
@@ -126,7 +133,7 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({
                         color: "#222",
                       }}
                     >
-                      {String(val)}
+                      {formatValue(val)}
                     </TableCell>
                   ))}
                 </TableRow>

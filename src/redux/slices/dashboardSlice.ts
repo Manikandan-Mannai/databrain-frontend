@@ -32,7 +32,6 @@ const initialState: DashboardState = {
   error: null,
 };
 
-// ✅ Create / Save new dashboard
 export const saveDashboard = createAsyncThunk(
   "dashboard/save",
   async (
@@ -50,7 +49,6 @@ export const saveDashboard = createAsyncThunk(
   }
 );
 
-// ✅ Fetch all dashboards
 export const fetchDashboards = createAsyncThunk(
   "dashboard/fetchAll",
   async (_, { rejectWithValue }) => {
@@ -65,7 +63,6 @@ export const fetchDashboards = createAsyncThunk(
   }
 );
 
-// ✅ Fetch single dashboard by ID
 export const fetchDashboard = createAsyncThunk(
   "dashboard/fetchOne",
   async (id: string | undefined, { rejectWithValue }) => {
@@ -73,7 +70,6 @@ export const fetchDashboard = createAsyncThunk(
       if (!id || id === "undefined" || id === "null") {
         return rejectWithValue("Invalid dashboard ID provided");
       }
-
       const res = await api.get(`/api/dashboard/${id}`);
       return res.data.data;
     } catch (error: any) {
@@ -84,7 +80,6 @@ export const fetchDashboard = createAsyncThunk(
   }
 );
 
-// ✅ Update dashboard
 export const updateDashboard = createAsyncThunk(
   "dashboard/update",
   async (
@@ -106,7 +101,6 @@ export const updateDashboard = createAsyncThunk(
   }
 );
 
-// ✅ Delete dashboard
 export const deleteDashboard = createAsyncThunk(
   "dashboard/delete",
   async (id: string, { rejectWithValue }) => {
@@ -134,7 +128,6 @@ const dashboardSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // 🟦 Save dashboard
       .addCase(saveDashboard.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -147,8 +140,6 @@ const dashboardSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-
-      // 🟦 Fetch all dashboards
       .addCase(fetchDashboards.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -161,8 +152,6 @@ const dashboardSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-
-      // 🟦 Fetch single dashboard
       .addCase(fetchDashboard.pending, (state) => {
         state.status = "loading";
       })
@@ -174,8 +163,6 @@ const dashboardSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-
-      // 🟦 Update dashboard
       .addCase(updateDashboard.pending, (state) => {
         state.status = "loading";
       })
@@ -190,8 +177,6 @@ const dashboardSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-
-      // 🟦 Delete dashboard
       .addCase(deleteDashboard.pending, (state) => {
         state.status = "loading";
       })
