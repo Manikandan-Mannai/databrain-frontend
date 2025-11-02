@@ -333,7 +333,6 @@ const DashboardPage: React.FC = () => {
         );
       })}
 
-      {/* Edit Modal - Notion Style B&W */}
       <Dialog open={editOpen} onClose={closeEdit} fullWidth maxWidth="sm">
         <DialogTitle sx={{ color: "#000", fontWeight: 600 }}>
           Edit Dashboard
