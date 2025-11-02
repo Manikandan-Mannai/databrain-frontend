@@ -29,6 +29,14 @@ This frontend allows users to upload data, create queries, and visualize results
 - React Router  
 - Axios  
 
+## Roles and Capabilities
+
+| Role   | Capabilities                                          |
+| ------ | ----------------------------------------------------- |
+| Admin  | Full access to users, charts, data, and dashboards    |
+| Editor | Create and manage own queries, charts, and dashboards |
+| Viewer | View shared and public dashboards                     |
+
 ## Folder Structure
 
 ```
@@ -89,14 +97,6 @@ Create a `.env` file in the root directory:
 ```
 VITE_BACKEND_URL=http://localhost:5000
 ```
-
-## Roles and Capabilities
-
-| Role   | Capabilities                                          |
-| ------ | ----------------------------------------------------- |
-| Admin  | Full access to users, charts, data, and dashboards    |
-| Editor | Create and manage own queries, charts, and dashboards |
-| Viewer | View shared and public dashboards                     |
 
 ## Scripts
 
