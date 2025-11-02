@@ -1,9 +1,9 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import authSlice from "../slices/authSlice";
 import chartSlice from "../slices/chartSlice";
+import dashboardReducer from "../slices/dashboardSlice";
 import dataReducer from "../slices/dataSlice";
 import queryReducer from "../slices/querySlice";
-import dashboardReducer from "../slices/dashboardSlice";
 import themeReducer from "../slices/themeSlice";
 
 const rootReducer = combineReducers({

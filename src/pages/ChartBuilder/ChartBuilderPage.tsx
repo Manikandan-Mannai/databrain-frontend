@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { fetchAllUsers } from "../../redux/slices/authSlice";
 import { saveChart } from "../../redux/slices/chartSlice";
 import { saveDashboard } from "../../redux/slices/dashboardSlice";
 import { fetchQueryResult } from "../../redux/slices/querySlice";
-import { fetchAllUsers } from "../../redux/slices/authSlice";
 import type { AppDispatch, RootState } from "../../redux/store/store";
 import ChartForm from "./ChartForm";
 import ChartList from "./ChartList";
@@ -170,7 +170,7 @@ const ChartBuilderPage: React.FC = () => {
     const payload = {
       name: dashboardName,
       charts: group.map((g) => ({ chartId: g.chartId, layout: g.layout })),
-      accessLevel,
+      accessLevel: accessLevel || undefined,
       sharedWith: accessLevel === "shared" ? sharedWith : [],
     };
 

@@ -1,7 +1,7 @@
+import DownloadIcon from "@mui/icons-material/Download";
+import { Card, CardContent, CardHeader, IconButton } from "@mui/material";
 import React from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, CardHeader, IconButton } from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
 
 interface ChartRendererProps {
   chart: any;

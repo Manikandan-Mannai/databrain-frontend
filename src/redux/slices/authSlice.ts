@@ -1,8 +1,5 @@
 // src/features/auth/authSlice.ts
-import {
-  createAsyncThunk,
-  createSlice
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../services/apiService";
 
 export type Role = "admin" | "editor" | "viewer";

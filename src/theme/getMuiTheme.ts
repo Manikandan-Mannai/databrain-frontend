@@ -1,4 +1,3 @@
-// src/theme/getMuiTheme.ts
 import { createTheme } from "@mui/material";
 
 export const getMuiTheme = (mode: "light" | "dark") =>

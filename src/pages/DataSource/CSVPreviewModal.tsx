@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
   Box,
   CircularProgress,
-  Typography,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
+  TableRow,
+  Typography,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPreviewData } from "../../redux/slices/dataSlice";
-import type { RootState, AppDispatch } from "../../redux/store/store";
+import type { AppDispatch, RootState } from "../../redux/store/store";
 
 interface CSVPreviewModalProps {
   open: boolean;

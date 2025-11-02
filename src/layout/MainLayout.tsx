@@ -14,8 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import type { RootState } from "../redux/store/store";
 
@@ -53,8 +52,6 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useSelector((state: RootState) => state.auth);
-  // const { mode } = useSelector((state: RootState) => state.theme);
-  // const dispatch = useDispatch();
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
@@ -142,20 +139,6 @@ export default function MainLayout() {
           gap: 1,
         }}
       >
-        {/* 
-        <IconButton
-          onClick={() => dispatch(toggleTheme())}
-          sx={{
-            width: 34,
-            height: 34,
-            color: "text.secondary",
-            "&:hover": { color: "text.primary" },
-          }}
-        >
-          {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-        </IconButton> 
-        */}
-
         <Tooltip title="Logout" placement="right">
           <Box
             onClick={handleLogout}

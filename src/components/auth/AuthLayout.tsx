@@ -17,7 +17,7 @@ const AuthLayout = ({
     >
       <Card
         sx={{
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)"
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
         }}
       >
         <CardContent sx={{ p: 3 }}>

@@ -1,179 +1,3 @@
-// import React from "react";
-// import ReactApexChart from "react-apexcharts";
-// import { type ApexOptions } from "apexcharts";
-// import type { ChartConfig } from "../../redux/types/index";
-
-// interface Props {
-//   data: any[];
-//   config: ChartConfig;
-//   height?: number;
-//   width?: number;
-// }
-
-// const yAxisFormatter = (val: number) => {
-//   const s = val.toFixed(2).replace(/\.?0+$/, "");
-//   return s.includes(".") ? parseFloat(s).toFixed(1) : s;
-// };
-
-// const ChartPreview: React.FC<Props> = ({
-//   data,
-//   config,
-//   height = "100%",
-//   width = "100%",
-// }) => {
-//   if (!data?.length) {
-//     return (
-//       <div
-//         style={{
-//           height,
-//           width,
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           color: "#666",
-//         }}
-//       >
-//         No data available
-//       </div>
-//     );
-//   }
-
-//   if (config.type === "pie" && config.pieSeries?.length) {
-//     const pie = config.pieSeries[0];
-//     const labels = data
-//       .map((d) => d[pie.labelField])
-//       .filter((v): v is string => typeof v === "string" && v.trim() !== "");
-//     const values = data.map((d) => Number(d[pie.valueField]) || 0);
-
-//     const options: ApexOptions = {
-//       chart: { type: "pie", background: "#fff" },
-//       labels,
-//       colors: ["#000", "#333", "#777", "#aaa", "#ddd"],
-//       legend: { position: "bottom", labels: { colors: "#000" } },
-//       title: {
-//         text: config.title,
-//         align: "left",
-//         style: { fontSize: "14px", fontWeight: "bold" },
-//       },
-//       responsive: [
-//         {
-//           breakpoint: 10000,
-//           options: { chart: { width: "100%", height: "100%" } },
-//         },
-//       ],
-//     };
-
-//     return (
-//       <div style={{ width, height }}>
-//         <ReactApexChart
-//           options={options}
-//           series={values}
-//           type="pie"
-//           width="100%"
-//           height="100%"
-//         />
-//       </div>
-//     );
-//   }
-
-//   if (!config.xAxis || !config.series?.length) {
-//     return (
-//       <div
-//         style={{
-//           height,
-//           width,
-//           display: "flex",
-//           alignItems: "center",
-//           justifyContent: "center",
-//           color: "#999",
-//         }}
-//       >
-//         Configure X-axis and Y-series
-//       </div>
-//     );
-//   }
-
-//   const categories = Array.from(
-//     new Set(data.map((d) => d[config.xAxis]))
-//   ).sort();
-
-//   const series = config.series.map((s) => ({
-//     name: s.name || s.yField,
-//     type: s.type ?? "column",
-//     data: categories.map((cat) => {
-//       const row = data.find((r) => r[config.xAxis] === cat);
-//       return row ? Number(row[s.yField]) || 0 : 0;
-//     }),
-//   }));
-
-//   const options: ApexOptions = {
-//     chart: {
-//       type: config.type === "mixed" ? "line" : (config.type as any),
-//       stacked: config.stack ?? false,
-//       background: "#fff",
-//       toolbar: { show: false },
-//       width: "100%",
-//       height: "100%",
-//     },
-//     stroke: { width: 2, curve: "smooth" },
-//     xaxis: {
-//       categories,
-//       labels: { style: { colors: "#000" } },
-//       title: { text: config.xAxis, style: { fontSize: "12px", color: "#000" } },
-//     },
-//     yaxis: {
-//       labels: {
-//         style: { colors: "#000" },
-//         formatter: yAxisFormatter,
-//       },
-//       title: { text: "Values", style: { fontSize: "12px", color: "#000" } },
-//     },
-//     colors: config.series.map((s: any) => s.color || "#000"),
-//     legend: { position: "top", labels: { colors: "#000" } },
-//     grid: { borderColor: "#e0e0e0" },
-//     title: {
-//       text: config.title,
-//       align: "left",
-//       style: { fontSize: "14px", fontWeight: "bold" },
-//     },
-//     tooltip: {
-//       y: { formatter: (v) => yAxisFormatter(v as number) },
-//     },
-//     dataLabels: {
-//       enabled: true,
-//       formatter: yAxisFormatter,
-//       style: { colors: ["#fff"] },
-//       background: { enabled: true, foreColor: "#000" },
-//     },
-//     plotOptions: {
-//       bar: {
-//         columnWidth: "55%",
-//         dataLabels: { position: "top" },
-//       },
-//     },
-//     responsive: [
-//       {
-//         breakpoint: 10000,
-//         options: { chart: { width: "100%", height: "100%" } },
-//       },
-//     ],
-//   };
-
-//   return (
-//     <div style={{ width, height }}>
-//       <ReactApexChart
-//         options={options}
-//         series={series}
-//         type={config.type === "mixed" ? "line" : (config.type as any)}
-//         width="100%"
-//         height="100%"
-//       />
-//     </div>
-//   );
-// };
-
-// export default ChartPreview;
-
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import { type ApexOptions } from "apexcharts";
@@ -232,14 +56,17 @@ const ChartPreview: React.FC<Props> = ({
       );
     }
 
+    const pieLabel = config?.pieLabel;
+    const pieValue = config?.pieValue;
+
     const labels = data
-      .map((row) => row[config.pieLabel])
+      .map((row) => row[pieLabel])
       .filter(
         (val) => val !== undefined && val !== null && String(val).trim() !== ""
       );
 
     const values = data
-      .map((row) => Number(row[config.pieValue]) || 0)
+      .map((row) => Number(row[pieValue]) || 0)
       .filter((val) => !isNaN(val) && val > 0);
 
     if (labels.length === 0 || values.length === 0) {

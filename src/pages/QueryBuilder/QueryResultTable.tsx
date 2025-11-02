@@ -1,16 +1,16 @@
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  Typography,
-  CircularProgress,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Alert,
   Box,
+  Card,
+  CardContent,
+  CardHeader,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
 } from "@mui/material";
 
 interface QueryResultTableProps {

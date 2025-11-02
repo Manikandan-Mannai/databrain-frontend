@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import type { ChartConfig, Series, PieSeries } from "../../redux/types";
+import type { ChartConfig, PieSeries, Series } from "../../redux/types";
 
 export const GRAY_SHADES = ["#000", "#333", "#666", "#999", "#ccc"];
 export const MAX_CHARTS = 4;

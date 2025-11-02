@@ -1,31 +1,31 @@
 // src/pages/ProfilePage.tsx
 import { Delete } from "@mui/icons-material";
 import {
-    Alert,
-    Box,
-    Button,
-    Chip,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    MenuItem,
-    Select,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    Typography,
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  MenuItem,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    deleteUser,
-    fetchAllUsers,
-    updateUserRole,
+  deleteUser,
+  fetchAllUsers,
+  updateUserRole,
 } from "../../redux/slices/authSlice";
 import type { AppDispatch, RootState } from "../../redux/store/store";
 
@@ -78,7 +78,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <Box sx={{  maxWidth:1200, mx: "auto", color: "#000" }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", color: "#000" }}>
       <Box sx={{ mb: 5 }}>
         <Typography variant="h5" fontWeight={700} mb={3}>
           Your Profile

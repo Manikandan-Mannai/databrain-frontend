@@ -1,9 +1,9 @@
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { Box, Button, TextField, Stack, Typography } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../redux/store/store";
+import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../redux/slices/authSlice";
+import type { AppDispatch, RootState } from "../../redux/store/store";
 
 const RegisterForm = () => {
   const [form, setForm] = useState({

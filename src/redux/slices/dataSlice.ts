@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../../services/apiService";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { DataSource } from "../../redux/types/index";
+import api from "../../services/apiService";
 
 interface PreviewData {
   columns: string[];

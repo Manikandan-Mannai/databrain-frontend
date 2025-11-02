@@ -2,16 +2,16 @@ import { Box, CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
+import ChartBuilderPage from "../pages/ChartBuilder/ChartBuilderPage";
 import Dashboard from "../pages/dashboard/Dashboard";
 import DataSourcePage from "../pages/DataSource/DataSourcePage";
+import ProfilePage from "../pages/Profile/ProfilePage";
 import QueryBuilderPage from "../pages/QueryBuilder/QueryBuilder";
-import ChartBuilderPage from "../pages/ChartBuilder/ChartBuilderPage";
 import Unauthorized from "../pages/Unauthorized";
 import type { RootState } from "../redux/store/store";
 import PrivateRoute from "./PrivateRoute";
-import Login from "../pages/auth/Login";
-import Register from "../pages/auth/Register";
-import ProfilePage from "../pages/Profile/ProfilePage";
 
 const AppRoutes = () => {
   const { authenticated, status } = useSelector(

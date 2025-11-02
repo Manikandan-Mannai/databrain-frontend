@@ -1,5 +1,5 @@
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
-import type { AxiosResponse, AxiosRequestConfig, AxiosInstance } from "axios";
 
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,

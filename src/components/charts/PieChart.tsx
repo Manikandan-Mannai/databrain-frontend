@@ -1,8 +1,8 @@
+import DownloadIcon from "@mui/icons-material/Download";
+import { Box, IconButton, Stack, Typography } from "@mui/material";
+import html2canvas from "html2canvas";
 import React from "react";
 import ApexCharts from "react-apexcharts";
-import { Box, IconButton, Typography, Stack } from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
-import html2canvas from "html2canvas";
 
 interface PieChartProps {
   data: Array<{ label: string; value: number }>;

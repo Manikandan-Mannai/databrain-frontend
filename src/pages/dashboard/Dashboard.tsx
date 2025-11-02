@@ -19,6 +19,7 @@ const DashboardPage: React.FC = () => {
   const { list, status, error } = useSelector(
     (state: RootState) => state?.dashboard
   );
+  const { currentUser } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     dispatch(fetchDashboards());
@@ -114,9 +115,41 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
-      <Typography variant="h4" fontWeight={700} mb={4}>
-        Your Dashboards
-      </Typography>
+      {currentUser?.name && (
+        <Box
+          display="flex"
+          alignItems="center"
+          gap={1.5}
+          mb={3}
+          sx={{ flexWrap: "wrap" }}
+        >
+          <Typography variant="h4" fontWeight={600}>
+            Welcome, {currentUser.name}!
+          </Typography>
+
+          <Box
+            sx={{
+              px: 1.5,
+              py: 0.5,
+              borderRadius: "8px",
+              bgcolor:
+                currentUser.role === "admin"
+                  ? "rgba(0,0,0,0.1)"
+                  : currentUser.role === "editor"
+                  ? "rgba(100,149,237,0.15)"
+                  : "rgba(128,128,128,0.1)",
+              color:
+                currentUser.role === "admin"
+                  ? "#000"
+                  : currentUser.role === "editor"
+                  ? "#4169E1"
+                  : "#555",
+            }}
+          >
+            {currentUser.role}
+          </Box>
+        </Box>
+      )}
 
       {list?.map((dashboard) => {
         const charts = dashboard?.charts || [];
