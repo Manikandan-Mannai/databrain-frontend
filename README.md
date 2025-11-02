@@ -46,7 +46,7 @@ Charts update automatically when query data changes and preserve configuration s
 Users can save and organize charts into dashboards, which are fetched and persisted through backend APIs.  
 Each dashboard includes **access level** (private, public, shared) and optional sharing to specific users.
 
-**PS:** I optimized the dashboard list and viewer mode to be role-aware, so viewers only see allowed dashboards, but editors/admins retain edit access dynamically.
+**PS:** I optimized the dashboard list and viewer mode to be role aware, so viewers only see allowed dashboards, but editors/admins retain edit access dynamically.
 
 ---
 
