@@ -1,4 +1,4 @@
-# 🧠 Data Query & Visualization Platform — Frontend Implementation
+# Data Query & Visualization Platform — Frontend Implementation
 
 This is my implementation of the **Frontend** for the “Data Query & Visualization Platform” take-home assignment.  
 I carefully went through the given brief, broke it down into deliverables, and focused on solving the real product and engineering challenges rather than just wiring screens.
