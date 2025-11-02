@@ -1,14 +1,10 @@
-import {
-  Brightness4,
-  Brightness7,
-  Dashboard as DashboardIcon,
-  UploadFile
-} from "@mui/icons-material";
+import { Dashboard as DashboardIcon, UploadFile } from "@mui/icons-material";
 import ConstructionIcon from "@mui/icons-material/Construction";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Person from "@mui/icons-material/Person";
 import {
   Box,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -20,7 +16,6 @@ import {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { toggleTheme } from "../redux/slices/themeSlice";
 import type { RootState } from "../redux/store/store";
 
 const drawerWidth = 70;
@@ -44,20 +39,33 @@ const navItems = [
     icon: <ConstructionIcon fontSize="small" />,
     roles: ["admin", "editor"],
   },
+  {
+    name: "Profile",
+    path: "/profile",
+    icon: <Person fontSize="small" />,
+    roles: ["admin", "editor", "viewer"],
+  },
 ];
 
 export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { currentUser } = useSelector((state: RootState) => state.auth);
   const { mode } = useSelector((state: RootState) => state.theme);
   const dispatch = useDispatch();
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("token_expiry");
+    navigate("/login");
+  };
+
   const filteredItems = navItems.filter(
-    (item) => user && item.roles.includes(user.role)
+    (item) => currentUser && item.roles.includes(currentUser.role)
   );
 
   const drawer = (
@@ -124,7 +132,16 @@ export default function MainLayout() {
         })}
       </List>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          mb: 2,
+          gap: 1,
+        }}
+      >
+        {/* 
         <IconButton
           onClick={() => dispatch(toggleTheme())}
           sx={{
@@ -135,7 +152,40 @@ export default function MainLayout() {
           }}
         >
           {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-        </IconButton>
+        </IconButton> 
+        */}
+
+        <Tooltip title="Logout" placement="right">
+          <Box
+            onClick={handleLogout}
+            sx={{
+              width: 42,
+              height: 42,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "error.light",
+              borderRadius: "50%",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+              boxShadow: (theme) =>
+                theme.palette.mode === "light"
+                  ? "0 2px 4px rgba(0,0,0,0.1)"
+                  : "0 2px 6px rgba(255,255,255,0.1)",
+              "&:hover": {
+                bgcolor: "error.main",
+                transform: "scale(1.05)",
+              },
+            }}
+          >
+            <LogoutIcon
+              sx={{
+                fontSize: 20,
+                color: "common.white",
+              }}
+            />
+          </Box>
+        </Tooltip>
       </Box>
     </Box>
   );

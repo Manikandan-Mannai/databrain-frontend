@@ -1,6 +1,9 @@
 import React, { useState } from "react";
-import { Box, Button, TextField, Stack } from "@mui/material";
+import { Box, Button, TextField, Stack, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../redux/store/store";
+import { register } from "../../redux/slices/authSlice";
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
@@ -9,8 +12,10 @@ const RegisterForm = () => {
     password: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { status, error } = useSelector((state: RootState) => state.auth);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,10 +23,16 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) return;
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    navigate("/auth/login");
+
+    const res = await dispatch(
+      register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      })
+    );
+
+    if (register.fulfilled.match(res)) navigate("/auth/login");
   };
 
   return (
@@ -70,10 +81,17 @@ const RegisterForm = () => {
           size="small"
           InputProps={{ sx: { height: 38, fontSize: 14, bgcolor: "#fff" } }}
         />
+
+        {error && (
+          <Typography color="error" fontSize={13}>
+            {error}
+          </Typography>
+        )}
+
         <Button
           type="submit"
           variant="contained"
-          disabled={loading}
+          disabled={status === "loading"}
           sx={{
             textTransform: "none",
             bgcolor: "black",
@@ -84,7 +102,7 @@ const RegisterForm = () => {
             "&:hover": { bgcolor: "#333" },
           }}
         >
-          {loading ? "Creating..." : "Create Account"}
+          {status === "loading" ? "Creating..." : "Create Account"}
         </Button>
 
         <Button

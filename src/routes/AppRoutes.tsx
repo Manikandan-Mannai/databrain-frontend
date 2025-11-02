@@ -11,6 +11,7 @@ import type { RootState } from "../redux/store/store";
 import PrivateRoute from "./PrivateRoute";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import ProfilePage from "../pages/Profile/ProfilePage";
 
 const AppRoutes = () => {
   const { authenticated, status } = useSelector(
@@ -56,6 +57,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={["admin", "editor", "viewer"]}>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute allowedRoles={["admin", "editor", "viewer"]}>
+              <ProfilePage />
             </PrivateRoute>
           }
         />

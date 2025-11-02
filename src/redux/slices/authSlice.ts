@@ -1,13 +1,17 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+// src/features/auth/authSlice.ts
+import {
+  createAsyncThunk,
+  createSlice
+} from "@reduxjs/toolkit";
+import api from "../../services/apiService";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+export type Role = "admin" | "editor" | "viewer";
 
-interface User {
+export interface User {
   _id: string;
   name: string;
   email: string;
-  role: "admin" | "editor" | "viewer";
+  role: Role;
 }
 
 interface AuthResponse {
@@ -22,8 +26,14 @@ interface AuthResponse {
   };
 }
 
+interface AllUsersResponse {
+  success: boolean;
+  data: User[];
+}
+
 interface AuthState {
-  user: User | null;
+  currentUser: User | null;
+  allUsers: User[];
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -31,7 +41,8 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: null,
+  currentUser: null,
+  allUsers: [],
   token: null,
   status: "idle",
   error: null,
@@ -50,31 +61,25 @@ export const login = createAsyncThunk<
   { rejectValue: string }
 >("auth/login", async (credentials, { rejectWithValue }) => {
   try {
-    const res = await axios.post<AuthResponse>(
-      `${BASE_URL}/api/users/login`,
-      credentials,
-      { headers: { "Content-Type": "application/json" } }
-    );
+    const res = await api.post<AuthResponse>("/api/users/login", credentials);
     const data = res.data;
     if (data.success && data.data) {
       const user = {
         _id: data.data._id,
         name: data.data.name,
         email: data.data.email,
-        role: data.data.role as "admin" | "editor" | "viewer",
+        role: data.data.role as Role,
       };
       const token = data.data.token;
-      const expiry = Date.now() + 60 * 60 * 1000;
+      const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
       localStorage.setItem("access_token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token_expiry", expiry.toString());
       return { user, token };
-    } else {
-      return rejectWithValue(data.message || "Login failed");
     }
+    return rejectWithValue(data.message || "Login failed");
   } catch (error: any) {
-    const msg = error?.response?.data?.message ?? "Network error";
-    return rejectWithValue(msg);
+    return rejectWithValue(error?.response?.data?.message ?? "Network error");
   }
 });
 
@@ -84,20 +89,12 @@ export const register = createAsyncThunk<
   { rejectValue: string }
 >("auth/register", async (formData, { rejectWithValue }) => {
   try {
-    const res = await axios.post<AuthResponse>(
-      `${BASE_URL}/api/users/register`,
-      formData,
-      { headers: { "Content-Type": "application/json" } }
-    );
-    const data = res.data;
-    if (data.success) {
-      return data;
-    } else {
-      return rejectWithValue(data.message || "Registration failed");
-    }
+    const res = await api.post<AuthResponse>("/api/users/register", formData);
+    return res.data.success
+      ? res.data
+      : rejectWithValue(res.data.message || "Registration failed");
   } catch (error: any) {
-    const msg = error?.response?.data?.message ?? "Network error";
-    return rejectWithValue(msg);
+    return rejectWithValue(error?.response?.data?.message ?? "Network error");
   }
 });
 
@@ -107,15 +104,55 @@ export const fetchProfile = createAsyncThunk<
   { rejectValue: string }
 >("auth/fetchProfile", async (_, { rejectWithValue }) => {
   try {
-    const token = localStorage.getItem("access_token");
-    if (!token) throw new Error("No token found");
-    const res = await axios.get(`${BASE_URL}/api/users/profile`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data.user;
+    const res = await api.get<{ data: User }>("/api/users/profile");
+    return res.data.data;
   } catch (error: any) {
-    const msg = error?.response?.data?.message ?? "Failed to fetch profile";
-    return rejectWithValue(msg);
+    return rejectWithValue(
+      error?.response?.data?.message ?? "Failed to fetch profile"
+    );
+  }
+});
+
+export const fetchAllUsers = createAsyncThunk<
+  User[],
+  void,
+  { rejectValue: string }
+>("auth/fetchAllUsers", async (_, { rejectWithValue }) => {
+  try {
+    const res = await api.get<AllUsersResponse>("/api/users/all");
+    return res.data.data;
+  } catch (error: any) {
+    return rejectWithValue(
+      error?.response?.data?.message ?? "Failed to fetch users"
+    );
+  }
+});
+
+export const updateUserRole = createAsyncThunk<
+  void,
+  { userId: string; role: Role },
+  { rejectValue: string }
+>("auth/updateUserRole", async ({ userId, role }, { rejectWithValue }) => {
+  try {
+    await api.put("/api/users/role", { userId, role });
+  } catch (error: any) {
+    return rejectWithValue(
+      error?.response?.data?.message ?? "Failed to update role"
+    );
+  }
+});
+
+export const deleteUser = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>("auth/deleteUser", async (userId, { rejectWithValue }) => {
+  try {
+    await api.delete(`/api/users/${userId}`);
+  } catch (error: any) {
+    return rejectWithValue(
+      error?.response?.data?.message ?? "Failed to delete user"
+    );
   }
 });
 
@@ -128,7 +165,7 @@ const authSlice = createSlice({
       const user = localStorage.getItem("user");
       if (token && user && isTokenValid()) {
         state.token = token;
-        state.user = JSON.parse(user);
+        state.currentUser = JSON.parse(user);
         state.authenticated = true;
         state.status = "succeeded";
       } else {
@@ -137,12 +174,11 @@ const authSlice = createSlice({
       }
     },
     logout: (state) => {
-      state.user = null;
+      state.currentUser = null;
+      state.allUsers = [];
       state.token = null;
       state.authenticated = false;
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("token_expiry");
+      localStorage.clear();
     },
   },
   extraReducers: (builder) => {
@@ -152,7 +188,7 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        state.currentUser = action.payload.user;
         state.token = action.payload.token;
         state.authenticated = true;
       })
@@ -161,13 +197,22 @@ const authSlice = createSlice({
         state.authenticated = false;
         state.error = action.payload || null;
       })
-      .addCase(register.fulfilled, (state) => {
-        state.status = "succeeded";
-      })
       .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.currentUser = action.payload;
         state.authenticated = true;
         state.status = "succeeded";
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.allUsers = action.payload;
+      })
+      .addCase(updateUserRole.fulfilled, (state, action) => {
+        const { userId, role } = action.meta.arg;
+        const u = state.allUsers.find((user) => user._id === userId);
+        if (u) u.role = role;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        const id = action.meta.arg;
+        state.allUsers = state.allUsers.filter((u) => u._id !== id);
       });
   },
 });
