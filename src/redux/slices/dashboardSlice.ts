@@ -5,6 +5,8 @@ import api from "../../services/apiService";
 interface Dashboard {
   _id: string;
   name: string;
+  accessLevel: "public" | "private" | "shared";
+  sharedWith?: string[];
   charts: Array<{
     chartId: {
       _id: string;
@@ -35,7 +37,12 @@ const initialState: DashboardState = {
 export const saveDashboard = createAsyncThunk(
   "dashboard/save",
   async (
-    payload: { name: string; charts: Array<{ chartId: string; layout?: any }> },
+    payload: {
+      name: string;
+      charts: Array<{ chartId: string; layout?: any }>;
+      accessLevel?: "public" | "private" | "shared";
+      sharedWith?: string[];
+    },
     { rejectWithValue }
   ) => {
     try {
@@ -87,6 +94,8 @@ export const updateDashboard = createAsyncThunk(
       id: string;
       name?: string;
       charts?: Array<{ chartId: string; layout?: any }>;
+      accessLevel?: "public" | "private" | "shared";
+      sharedWith?: string[];
     },
     { rejectWithValue }
   ) => {

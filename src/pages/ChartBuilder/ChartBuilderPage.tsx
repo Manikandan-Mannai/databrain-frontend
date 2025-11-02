@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { saveChart } from "../../redux/slices/chartSlice";
 import { saveDashboard } from "../../redux/slices/dashboardSlice";
 import { fetchQueryResult } from "../../redux/slices/querySlice";
+import { fetchAllUsers } from "../../redux/slices/authSlice";
 import type { AppDispatch, RootState } from "../../redux/store/store";
 import ChartForm from "./ChartForm";
 import ChartList from "./ChartList";
@@ -24,9 +25,14 @@ const ChartBuilderPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const queryParams = new URLSearchParams(location.search);
   const queryId = queryParams.get("queryId");
-  const { currentResult, status } = useSelector((s: RootState) => s.query);
-  const { user } = useSelector((s: RootState) => s.auth);
 
+  const { currentResult, status } = useSelector((s: RootState) => s.query);
+  const { currentUser, allUsers } = useSelector((s: RootState) => s.auth);
+
+  const [accessLevel, setAccessLevel] = useState<
+    "public" | "private" | "shared" | ""
+  >("private");
+  const [sharedWith, setSharedWith] = useState<string[]>([]);
   const [group, setGroup] = useState<ChartGroupItem[]>([]);
   const [dashboardName, setDashboardName] = useState("");
 
@@ -55,6 +61,12 @@ const ChartBuilderPage: React.FC = () => {
     if (queryId && !currentResult) dispatch(fetchQueryResult(queryId));
   }, [queryId, currentResult, dispatch]);
 
+  useEffect(() => {
+    dispatch(fetchAllUsers())
+      .unwrap()
+      .catch(() => toast.error("Failed to load users for sharing"));
+  }, [dispatch]);
+
   if (status === "loading") return <CircularProgress />;
   if (!currentResult?.length) return <div>No data available</div>;
 
@@ -75,7 +87,6 @@ const ChartBuilderPage: React.FC = () => {
         .filter(
           (v) => v !== undefined && v !== null && String(v).trim() !== ""
         );
-
       const values = currentResult
         .map((row) => Number(row[config.pieValue as keyof typeof row]) || 0)
         .filter((v) => !isNaN(v));
@@ -84,7 +95,7 @@ const ChartBuilderPage: React.FC = () => {
         title: config.title,
         type: "pie",
         queryId,
-        createdBy: user?._id,
+        createdBy: currentUser?._id,
         config: {
           pieLabel: config.pieLabel,
           pieValue: config.pieValue,
@@ -102,7 +113,6 @@ const ChartBuilderPage: React.FC = () => {
         showLegend: true,
         showGrid: true,
       };
-
       const transformedData = currentResult.map((row) => ({
         label: row[config.xAxis],
         values: config.series.map((s) => ({
@@ -110,12 +120,11 @@ const ChartBuilderPage: React.FC = () => {
           value: Number(row[s.yField]) || 0,
         })),
       }));
-
       payload = {
         title: config.title,
         type: config.type,
         queryId,
-        createdBy: user?._id,
+        createdBy: currentUser?._id,
         config: chartConfig,
         series: config.series.map((s, i) => ({
           name: s.name || s.yField,
@@ -130,7 +139,6 @@ const ChartBuilderPage: React.FC = () => {
     try {
       const result = await dispatch(saveChart(payload)).unwrap();
       const chartId = result.data.chartId;
-
       setGroup((prev) => [
         ...prev,
         {
@@ -139,7 +147,6 @@ const ChartBuilderPage: React.FC = () => {
           preview: { ...payload, id: chartId },
         },
       ]);
-
       toast.success("Chart saved successfully!");
       setPreview(false);
       setConfig({
@@ -162,10 +169,9 @@ const ChartBuilderPage: React.FC = () => {
 
     const payload = {
       name: dashboardName,
-      charts: group.map((g) => ({
-        chartId: g.chartId,
-        layout: g.layout,
-      })),
+      charts: group.map((g) => ({ chartId: g.chartId, layout: g.layout })),
+      accessLevel,
+      sharedWith: accessLevel === "shared" ? sharedWith : [],
     };
 
     try {
@@ -263,6 +269,11 @@ const ChartBuilderPage: React.FC = () => {
           onAddDashboard={handleAddDashboard}
           dashboardName={dashboardName}
           setDashboardName={setDashboardName}
+          accessLevel={accessLevel}
+          setAccessLevel={setAccessLevel}
+          sharedWith={sharedWith}
+          setSharedWith={setSharedWith}
+          allUsers={allUsers}
         />
       </Box>
     </Box>

@@ -21,7 +21,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   allowedRoles,
 }) => {
   const location = useLocation();
-  const { authenticated, user } = useSelector((state: RootState) => state.auth);
+  const { authenticated, currentUser } = useSelector((state: RootState) => state.auth);
 
   if (!authenticated || !isTokenValid()) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -29,8 +29,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 
   if (
     allowedRoles &&
-    user?.role &&
-    !allowedRoles.includes(user.role.toLowerCase())
+    currentUser?.role &&
+    !allowedRoles.includes(currentUser.role.toLowerCase())
   ) {
     return <Navigate to="/unauthorized" replace />;
   }
